@@ -6,10 +6,7 @@ import (
 
 func PkgPath(obj interface{}) string {
 	ret := reflect.TypeOf(obj).PkgPath()
-	switch ret {
-	case "main":
-		ret = "root"
-	case "":
+	if "" == ret {
 		ret = "unknown"
 	}
 	return ret
