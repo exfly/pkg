@@ -4,6 +4,7 @@ import (
 	"errors"
 	"expvar"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/exfly/pkg/log"
@@ -46,10 +47,15 @@ type Builder struct {
 	handler      http.Handler
 }
 
+func isDebug() bool {
+	return os.Getenv("METRICS_DEBUG") == "debug"
+}
+
 // CreateMetricsFactory creates a metrics factory based on the configured type of the backend.
 // If the metrics backend supports HTTP endpoint for scraping, it is stored in the builder and
 // can be later added by RegisterHandler function.
 func (b *Builder) CreateMetricsFactory(namespace string) (metrics.Factory, error) {
+	debug := isDebug()
 	if b.Backend == PrometheusBackend {
 		metricsFactory := jprom.New().Namespace(metrics.NSOptions{Name: namespace, Tags: nil})
 		b.handler = promhttp.HandlerFor(
@@ -64,7 +70,9 @@ func (b *Builder) CreateMetricsFactory(namespace string) (metrics.Factory, error
 
 			ticker := time.NewTicker(b.PushInterval)
 			for range ticker.C {
-				log.L().Debug("metrics pusher ticker")
+				if debug {
+					log.L().Debug("metrics pusher ticker")
+				}
 				if err := push.New(b.PushTo, b.JobName).
 					Gatherer(prometheus.DefaultGatherer).Grouping("app", b.AppName).
 					Push(); err != nil {
