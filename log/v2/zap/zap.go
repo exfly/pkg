@@ -16,7 +16,7 @@ func (l zapSugarLogger) Log(kv ...interface{}) error {
 // NewZapSugarLogger returns a Go kit log.Logger that sends
 // log events to a zap.Logger.
 func NewZapSugarLogger(logger *zap.Logger, level zapcore.Level) log.Logger {
-	sugarLogger := logger.WithOptions(zap.AddCallerSkip(2)).Sugar()
+	sugarLogger := logger.WithOptions(zap.AddCallerSkip(3)).Sugar()
 	var sugar zapSugarLogger
 	switch level {
 	case zapcore.DebugLevel:

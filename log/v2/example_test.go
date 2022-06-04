@@ -113,9 +113,9 @@ func Example_zap() {
 
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
 	// omit zap level time msg
-	encoderConfig.LevelKey = ""
-	encoderConfig.TimeKey = ""
-	encoderConfig.MessageKey = ""
+	encoderConfig.LevelKey = zapcore.OmitKey
+	encoderConfig.TimeKey = zapcore.OmitKey
+	encoderConfig.MessageKey = zapcore.OmitKey
 
 	encoder := zapcore.NewConsoleEncoder(encoderConfig)
 	writer := os.Stdout
@@ -124,6 +124,7 @@ func Example_zap() {
 		zap.Development(),
 		zap.WithCaller(false),
 	)
+	defer func() { _ = zaplogger.Sync() }()
 
 	logger := level.NewFilter(
 		zaplog.NewZapSugarLogger(zaplogger, zapcore.InfoLevel),
